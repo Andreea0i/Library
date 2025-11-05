@@ -6,15 +6,15 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.Statement;
 
-public class JBDConnectionWrapper {
+public class JDBConnectionWrapper {
     private static final String JDBC_DRIVER = "com.mysql.cj.jdbc.Driver";
-    private static final String DB_URL = "jdbc:myql://localhost/";
+    private static final String DB_URL = "jdbc:mysql://localhost/";
     private static final String USER = "root";
     private static final String PASSWORD = "Andreea.2004";
     private static final int TIMEOUT = 5;
 
     private Connection connection;
-    public JBDConnectionWrapper(String schema){
+    public JDBConnectionWrapper(String schema){
          try {
              Class.forName(JDBC_DRIVER);
              connection = DriverManager.getConnection(DB_URL + schema, USER, PASSWORD);
