@@ -7,7 +7,7 @@ public class BookBuilder {
     private Book book;
 
     public BookBuilder() {
-        book = new Book();
+        book = new Book("", "");
     }
 
     public BookBuilder setId(Long id) {
