@@ -22,7 +22,8 @@ public class BookRepositoryMockTest {
 
     @Test
     public void findAll() {
-        assertEquals(0, bookRepository.findAll().size());
+        List<Book> books = bookRepository.findAll();
+        assertEquals(0, books.size());
     }
 
     @Test

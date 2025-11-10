@@ -32,8 +32,8 @@ public class BookMapper {
                 .collect(Collectors.toList());
     }
 
-    public static List<Book> convertBookDTOListToBookList(List<BookDTO> books) {
-        return books.parallelStream()
+    public static List<Book> convertBookDTOListToBookList(List<BookDTO> bookDTO) {
+        return bookDTO.parallelStream()
                 .map(BookMapper::convertBookDTOToBook)
                 .collect(Collectors.toList());
     }

@@ -1,45 +1,52 @@
-
-
 import database.DatabaseConnectionFactory;
 import model.Book;
+import model.builder.BookBuilder;
 import org.junit.jupiter.api.*;
 import repository.BookRepositoryMySQL;
 
 import java.sql.Connection;
+import java.time.LocalDate;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class BookRepositoryMySQLTest {
+public class BookRepositoryMySQLTest {
 
     private static BookRepositoryMySQL bookRepository;
-    private static Connection connection;
 
     @BeforeAll
-    static void setUp() {
-        // presupunem că ai o clasă DatabaseConnectionFactory care îți oferă conexiunea
-        connection = DatabaseConnectionFactory.getConnectionWrapper(true).getConnection();
+    static void setup() {
+        Connection connection = DatabaseConnectionFactory.getConnectionWrapper(true).getConnection(); // test schema
         bookRepository = new BookRepositoryMySQL(connection);
+        bookRepository.removeAll(); // curățare tabele
     }
 
     @Test
-    void testSaveBook() {
-        Book book = new Book("Test Title", "Test Author");
-        boolean result = bookRepository.save(book);
-        assertTrue(result, "Cartea ar trebui să se salveze cu succes");
-    }
+    void testSaveAndFindAll() {
+        Book book = new BookBuilder()
+                .setTitle("Test Title")
+                .setAuthor("Test Author")
+                .setPublishedDate(LocalDate.of(2020, 1, 1))
+                .build();
 
-    @Test
-    void testFindAllBooks() {
+        boolean saved = bookRepository.save(book);
+        assertTrue(saved);
+
         List<Book> books = bookRepository.findAll();
-        assertNotNull(books, "Lista nu trebuie să fie null");
+        assertEquals(1, books.size());
+        assertEquals("Test Title", books.get(0).getTitle());
     }
 
     @Test
-    void testDeleteBook() {
-        Book book = new Book("ToDelete", "Author");
+    void testDelete() {
+        Book book = new BookBuilder()
+                .setTitle("Delete Title")
+                .setAuthor("Delete Author")
+                .setPublishedDate(LocalDate.of(2019, 1, 1))
+                .build();
+
         bookRepository.save(book);
-        boolean result = bookRepository.delete(book);
-        assertTrue(result, "Cartea ar trebui să fie ștearsă cu succes");
+        boolean deleted = bookRepository.delete(book);
+        assertTrue(deleted);
     }
 }

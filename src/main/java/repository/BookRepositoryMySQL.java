@@ -3,16 +3,14 @@ package repository;
 import model.Book;
 import model.builder.BookBuilder;
 
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 public class BookRepositoryMySQL implements BookRepository {
-    private Connection connection;
+
+    private final Connection connection;
 
     public BookRepositoryMySQL(Connection connection) {
         this.connection = connection;
@@ -23,9 +21,8 @@ public class BookRepositoryMySQL implements BookRepository {
         String sql = "SELECT * FROM book";
         List<Book> books = new ArrayList<>();
 
-        try {
-            Statement statement = connection.createStatement();
-            ResultSet resultSet = statement.executeQuery(sql);
+        try (Statement statement = connection.createStatement();
+             ResultSet resultSet = statement.executeQuery(sql)) {
 
             while (resultSet.next()) {
                 books.add(getBookFromResultSet(resultSet));
@@ -38,17 +35,16 @@ public class BookRepositoryMySQL implements BookRepository {
 
     @Override
     public Optional<Book> findById(Long id) {
-        String sql = "SELECT * FROM book WHERE id=" + id;
+        String sql = "SELECT * FROM book WHERE id = ?";
         Optional<Book> book = Optional.empty();
 
-        try {
-            Statement statement = connection.createStatement();
-            ResultSet resultSet = statement.executeQuery(sql);
+        try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+            preparedStatement.setLong(1, id);
+            ResultSet resultSet = preparedStatement.executeQuery();
 
             if (resultSet.next()) {
                 book = Optional.of(getBookFromResultSet(resultSet));
             }
-
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -58,41 +54,40 @@ public class BookRepositoryMySQL implements BookRepository {
 
     @Override
     public boolean save(Book book) {
-        String newSql = "INSERT INTO book VALUES (null, \'" + book.getAuthor() + "\', \'" + book.getTitle() + "\', \'" + book.getPublishedDate() + "\');";
+        String sql = "INSERT INTO book (author, title, publishedDate) VALUES (?, ?, ?)";
 
-        try {
-            Statement statement = connection.createStatement();
-            statement.executeUpdate(newSql);
+        try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+            preparedStatement.setString(1, book.getAuthor());
+            preparedStatement.setString(2, book.getTitle());
+            preparedStatement.setDate(3, Date.valueOf(book.getPublishedDate()));
+            preparedStatement.executeUpdate();
+            return true;
         } catch (SQLException e) {
             e.printStackTrace();
             return false;
         }
-
-        return true;
     }
 
     @Override
     public boolean delete(Book book) {
-        String newSql = "DELETE FROM book WHERE author=\'" + book.getAuthor() + "\' AND title=\'" + book.getTitle() + "\';";
+        String sql = "DELETE FROM book WHERE author = ? AND title = ?";
 
-        try {
-            Statement statement = connection.createStatement();
-            statement.executeUpdate(newSql);
+        try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+            preparedStatement.setString(1, book.getAuthor());
+            preparedStatement.setString(2, book.getTitle());
+            preparedStatement.executeUpdate();
+            return true;
         } catch (SQLException e) {
             e.printStackTrace();
             return false;
         }
-
-        return true;
     }
 
     @Override
     public void removeAll() {
-        //String sql = "TRUNCATE TABLE book;";
-        String sql = "DELETE FROM book WHERE id > 0;";
+        String sql = "DELETE FROM book";
 
-        try {
-            Statement statement = connection.createStatement();
+        try (Statement statement = connection.createStatement()) {
             statement.executeUpdate(sql);
         } catch (SQLException e) {
             e.printStackTrace();
@@ -104,7 +99,7 @@ public class BookRepositoryMySQL implements BookRepository {
                 .setId(resultSet.getLong("id"))
                 .setTitle(resultSet.getString("title"))
                 .setAuthor(resultSet.getString("author"))
-                .setPublishedDate(new java.sql.Date(resultSet.getDate("publishedDate").getTime()).toLocalDate())
+                .setPublishedDate(resultSet.getDate("publishedDate").toLocalDate())
                 .build();
     }
 }

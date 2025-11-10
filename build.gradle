@@ -8,10 +8,6 @@ plugins {
 group = 'org.example'
 version = '1.0-SNAPSHOT'
 
-application {
-    mainClass.set("Main")
-}
-
 repositories {
     mavenCentral()
 }
@@ -19,24 +15,40 @@ repositories {
 dependencies {
     testImplementation platform('org.junit:junit-bom:5.10.0')
     testImplementation 'org.junit.jupiter:junit-jupiter'
-    implementation 'mysql:mysql-connector-java:8.0.33'
 
+    implementation 'mysql:mysql-connector-java:8.0.33'
     implementation 'org.openjfx:javafx-controls:21'
     implementation 'org.openjfx:javafx-fxml:21'
-
-    apply plugin:"com.github.johnrengelman.shadow"
+    implementation files('libs/Library-1.0-SNAPSHOT-all.jar')
+}
 
 javafx {
     version = '21.0.1'
     modules = ['javafx.controls', 'javafx.fxml']
 }
-    jar {
-        manifest {
-            attributes 'Main-Class': 'launcher.Launcher'
-        }
+
+application {
+    // Clasa principală
+    mainClass.set('launcher.Launcher')
+}
+
+run {
+    // Asigură runtime JavaFX
+    doFirst {
+        jvmArgs = [
+                '--module-path', classpath.asPath,
+                '--add-modules', 'javafx.controls,javafx.fxml'
+        ]
     }
 }
 
+jar {
+    manifest {
+        attributes(
+                'Main-Class': 'launcher.Launcher'
+        )
+    }
+}
 
 test {
     useJUnitPlatform()

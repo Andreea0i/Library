@@ -31,6 +31,8 @@ public class Main {
 //        bookRepository.removeAll();
 //        System.out.println(bookRepository.findAll());
 
+        //DatabaseConnectionFactory.getConnectionWrapper(false);
+
         Connection connection = DatabaseConnectionFactory.getConnectionWrapper(false).getConnection();
         BookRepository bookRepository = new BookRepositoryMySQL(connection);
         BookService bookService = new BookServiceImpl(bookRepository);
@@ -45,6 +47,21 @@ public class Main {
         bookService.delete(book);
        // bookService.save(book);
         System.out.println(bookService.findAll());
+
+        Book book1 = new BookBuilder()
+                .setTitle("Ion")
+                .setAuthor("Liviu Rebreanu")
+                .setPublishedDate(LocalDate.of(1910, 10, 20))
+                .build();
+
+        Book book2 = new BookBuilder()
+                .setTitle("Moara cu noroc")
+                .setAuthor("Ioan Slavici")
+                .setPublishedDate(LocalDate.of(1950, 2, 10))
+                .build();
+
+        bookService.save(book);
+        bookService.save(bookMoaraCuNoroc);
 
     }
 }

@@ -8,10 +8,13 @@ public class Book {
     private String author;
     private LocalDate publishedDate;
 
-    public Book(String testTitle, String testAuthor) {
-        this.title = testTitle;
-        this.author = testAuthor;
-    }
+    //public Book(String toDelete, String author) {
+    //}
+
+//    public Book(String testTitle, String testAuthor) {
+//        this.title = testTitle;
+//        this.author = testAuthor;
+//    }
 
     public Long getId() {
         return id;

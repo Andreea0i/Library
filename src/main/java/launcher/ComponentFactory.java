@@ -4,9 +4,7 @@ import controller.BookController;
 import database.DatabaseConnectionFactory;
 import javafx.stage.Stage;
 import mapper.BookMapper;
-import model.Book;
 import repository.BookRepository;
-import repository.BookRepositoryMock;
 import repository.BookRepositoryMySQL;
 import service.BookService;
 import service.BookServiceImpl;
@@ -18,27 +16,47 @@ import java.util.List;
 
 public class ComponentFactory {
 
+    // instanța unică (marcată volatile pentru siguranță între thread-uri)
+    private static volatile ComponentFactory instance;
+
+    // dependențele
     private final BookView bookView;
     private final BookController bookController;
     private final BookRepository bookRepository;
     private final BookService bookService;
-    private static ComponentFactory instance;
-    public static ComponentFactory getInstance(Boolean componentsForTest, Stage primaryStage) {
-       if (instance == null) {
-           instance = new ComponentFactory(componentsForTest, primaryStage);
-       }
-       return instance;
-    }
 
-    public ComponentFactory(Boolean componentsForTest, Stage primaryStage) {
-        Connection connection = (Connection) DatabaseConnectionFactory.getConnectionWrapper(componentsForTest);
-        this.bookRepository= new BookRepositoryMySQL(connection);
+    // constructorul este PRIVATE — nu se poate apela din afară
+    private ComponentFactory(Boolean componentsForTest, Stage primaryStage) {
+        // Obține conexiunea corectă
+        Connection connection = DatabaseConnectionFactory
+                .getConnectionWrapper(componentsForTest)
+                .getConnection();
+
+        // Inițializează repository și service
+        this.bookRepository = new BookRepositoryMySQL(connection);
         this.bookService = new BookServiceImpl(bookRepository);
-        List<BookDTO> booksDTOs = BookMapper.convertBookListToBookDTOList(bookService.findAll());
-        this.bookView = new BookView(primaryStage, booksDTOs);
+
+        // Obține lista de cărți și convertește la DTO
+        List<BookDTO> bookDTOs = BookMapper.convertBookListToBookDTOList(bookService.findAll());
+
+        // Creează view + controller
+        this.bookView = new BookView(primaryStage, bookDTOs);
         this.bookController = new BookController(bookView, bookService);
     }
 
+    // implementare singleton thread-safe cu double-checked locking
+    public static ComponentFactory getInstance(Boolean componentsForTest, Stage primaryStage) {
+        if (instance == null) { // prima verificare fără lock (rapidă)
+            synchronized (ComponentFactory.class) {
+                if (instance == null) { // verificare dublă cu lock
+                    instance = new ComponentFactory(componentsForTest, primaryStage);
+                }
+            }
+        }
+        return instance;
+    }
+
+    // Gettere pentru componente
     public BookView getBookView() {
         return bookView;
     }
@@ -46,9 +64,11 @@ public class ComponentFactory {
     public BookController getBookController() {
         return bookController;
     }
+
     public BookRepository getBookRepository() {
         return bookRepository;
     }
+
     public BookService getBookService() {
         return bookService;
     }

@@ -8,16 +8,11 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.GridPane;
 import javafx.stage.Stage;
 import view.model.BookDTO;
-import javafx.scene.control.TableView;
 
-import java.awt.*;
 import java.util.List;
 
 public class BookView {
@@ -41,8 +36,9 @@ public class BookView {
         Scene scene = new Scene(gridPane, 720, 480);
         primaryStage.setScene(scene);
 
-        // Folosim BookDTO peste tot
+        // Folosim lista de BookDTO venită ca parametru
         bookObservableList = FXCollections.observableArrayList(books);
+
         initTableView(gridPane);
         initSaveOptions(gridPane);
 
@@ -58,7 +54,6 @@ public class BookView {
 
     private void initTableView(GridPane gridPane) {
         bookTableView = new TableView<>();
-
         bookTableView.setPlaceholder(new Label("No books to display"));
 
         TableColumn<BookDTO, String> titleColumn = new TableColumn<>("Title");
