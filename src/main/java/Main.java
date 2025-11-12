@@ -1,25 +1,43 @@
+import controller.LoginController;
 import database.DatabaseConnectionFactory;
+import database.JDBConnectionWrapper;
+import javafx.application.Application;
+import javafx.stage.Stage;
 import model.Book;
 import model.builder.BookBuilder;
-import repository.*;
-import service.BookService;
-import service.BookServiceImpl;
+import model.validator.UserValidator;
+import repository.book.BookRepository;
+import repository.book.BookRepositoryCacheDecorator;
+import repository.book.BookRepositoryMySQL;
+import repository.book.Cache;
+import repository.security.RightsRolesRepository;
+import repository.security.RightsRolesRepositoryMySQL;
+import repository.user.AuthenticationService;
+import repository.user.UserRepository;
+import repository.user.UserRepositoryMySQL;
+import service.book.BookService;
+import service.book.BookServiceImpl;
+import service.user.AuthenticationServiceMySQL;
+import view.LoginView;
 
 import java.sql.Connection;
 
 
 import java.time.LocalDate;
 
-public class Main {
-    public static void main(String[] args) {
-        System.out.println("Hello World");
+import static database.Constants.Schemas.PRODUCTION;
 
-        Book book = new BookBuilder()
-                .setTitle("Ion")
-                .setAuthor("Liviu Rebreanu")
-                .setPublishedDate(LocalDate.of(1910, 10, 20))
-                .build();
-        System.out.println(book);
+public class Main extends Application {
+    public static void main(String[] args) {
+        //System.out.println("Hello World");
+        launch(args);
+
+//        Book book = new BookBuilder()
+//                .setTitle("Ion")
+//                .setAuthor("Liviu Rebreanu")
+//                .setPublishedDate(LocalDate.of(1910, 10, 20))
+//                .build();
+//        System.out.println(book);
 //
 //        BookRepository bookRepository = new BookRepositoryMock();
 //
@@ -31,15 +49,18 @@ public class Main {
 
         //DatabaseConnectionFactory.getConnectionWrapper(false);
 
-        Connection connection = DatabaseConnectionFactory.getConnectionWrapper(false).getConnection();
+       // Connection connection = DatabaseConnectionFactory.getConnectionWrapper(false).getConnection();
        // BookRepository bookRepository = new BookRepositoryMySQL(connection);
        // BookService bookService = new BookServiceImpl(bookRepository);
 
-        BookRepository bookRepository = new BookRepositoryCacheDecorator(new BookRepositoryMySQL(connection), new Cache<>());
-        BookService bookService = new BookServiceImpl(bookRepository);
+//        BookRepository bookRepository = new BookRepositoryCacheDecorator(new BookRepositoryMySQL(connection), new Cache<>());
+//        BookService bookService = new BookServiceImpl(bookRepository);
+//
+//        bookRepository.save(book);
+//        System.out.println(bookRepository.findAll());
 
-        bookRepository.save(book);
-        System.out.println(bookRepository.findAll());
+
+
 
 //        bookService.save(book);
 //        System.out.println(bookService.findAll());
@@ -65,6 +86,48 @@ public class Main {
 //
 //        bookService.save(book);
 //        bookService.save(bookMoaraCuNoroc);
+
+//        BookRepository bookRepository = new BookRepositoryCacheDecorator(
+//                new BookRepositoryMySQL(DatabaseConnectionFactory.getConnectionWrapper(true).getConnection()),
+//                new Cache<>()
+//        );
+//
+//        BookService bookService = new BookServiceImpl(bookRepository);
+//
+//        Connection connection = DatabaseConnectionFactory.getConnectionWrapper(true).getConnection();
+//
+//        RightsRolesRepository rightsRolesRepository = new RightsRolesRepositoryMySQL(connection);
+//        UserRepository userRepository = new UserRepositoryMySQL(connection, rightsRolesRepository);
+//
+//        AuthenticationService authenticationService = new AuthenticationServiceMySQL(userRepository, rightsRolesRepository);
+//
+//       if(userRepository.existsByUsername("Alex")){
+//           System.out.println("Username already present into user table!");
+//       } else {
+//           authenticationService.register("Andreea", "parola123!");
+//       }
+
+       // authenticationService.register("Andreea", "parola123");
+
+        //System.out.println(authenticationService.login("Andreea", "parola123!"));
+
+    }
+
+    @Override
+    public void start(Stage primaryStage) throws Exception {
+
+        final Connection connection = new JDBConnectionWrapper(PRODUCTION).getConnection();
+
+        final RightsRolesRepository rightsRolesRepository = new RightsRolesRepositoryMySQL(connection);
+        final UserRepository userRepository = new UserRepositoryMySQL(connection, rightsRolesRepository);
+
+        final AuthenticationService authenticationService = new AuthenticationServiceMySQL(userRepository, rightsRolesRepository);
+
+        final LoginView loginView = new LoginView(primaryStage);
+
+        final UserValidator userValidator = new UserValidator(userRepository);
+
+        new LoginController(loginView, authenticationService, userValidator);
 
     }
 }

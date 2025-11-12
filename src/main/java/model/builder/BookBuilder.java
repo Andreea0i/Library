@@ -1,5 +1,6 @@
 package model.builder;
 import model.Book;
+import model.Role;
 
 import java.time.LocalDate;
 

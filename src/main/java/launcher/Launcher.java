@@ -5,9 +5,9 @@ import database.DatabaseConnectionFactory;
 import javafx.application.Application;
 import javafx.stage.Stage;
 import mapper.BookMapper;
-import repository.BookRepositoryMySQL;
-import service.BookService;
-import service.BookServiceImpl;
+import repository.book.BookRepositoryMySQL;
+import service.book.BookService;
+import service.book.BookServiceImpl;
 import view.BookView;
 import view.model.BookDTO;
 

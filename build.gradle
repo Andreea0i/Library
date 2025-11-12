@@ -53,3 +53,4 @@ jar {
 test {
     useJUnitPlatform()
 }
+mainClassName = 'Main'
