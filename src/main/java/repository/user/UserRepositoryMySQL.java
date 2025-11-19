@@ -4,7 +4,9 @@ import model.User;
 import model.Role;
 import model.Right;
 import model.builder.UserBuilder;
+import model.validator.Notification;
 import repository.security.RightsRolesRepository;
+
 
 import java.sql.*;
 import java.util.List;
@@ -27,23 +29,32 @@ public class UserRepositoryMySQL implements UserRepository {
     }
 
     @Override
-    public User findByUserNameAndPassword(String username, String password) {
+    public Notification<User> findByUserNameAndPassword(String username, String password) {
+        Notification<User> findByUsernameAndPasswordNotification = new Notification<>();
         try {
             Statement statement = connection.createStatement();
             String fetchUserSql =
                     "Select * from `" + USER + "` where `username`=\"" + username + "\" and `password`=\"" + password + "\"";
             ResultSet userResultSet = statement.executeQuery(fetchUserSql);
-            userResultSet.next();
+            if(userResultSet.next()){
+
             User user = new UserBuilder()
                     .setUsername(userResultSet.getString("username"))
                     .setPassword(userResultSet.getString("password"))
                     .setRoles(rightsRolesRepository.findRolesForUser(userResultSet.getLong("id")))
                     .build();
-            return user;
+
+                findByUsernameAndPasswordNotification.setResult(user);
+            } else {
+                findByUsernameAndPasswordNotification.addError("Invalid username or password!");
+                return findByUsernameAndPasswordNotification;
+            }
+
         } catch (SQLException e) {
             System.out.println(e.toString());
+            findByUsernameAndPasswordNotification.addError("Something is wrong with the Database!");
         }
-        return null;
+        return findByUsernameAndPasswordNotification;
     }//metoda statement trebuie schimbata
 
     @Override

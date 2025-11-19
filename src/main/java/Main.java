@@ -12,13 +12,15 @@ import repository.book.BookRepositoryMySQL;
 import repository.book.Cache;
 import repository.security.RightsRolesRepository;
 import repository.security.RightsRolesRepositoryMySQL;
-import repository.user.AuthenticationService;
+//import repository.user.AuthenticationService;
 import repository.user.UserRepository;
 import repository.user.UserRepositoryMySQL;
 import service.book.BookService;
 import service.book.BookServiceImpl;
 import service.user.AuthenticationServiceMySQL;
 import view.LoginView;
+
+import service.user.AuthenticationService;
 
 import java.sql.Connection;
 
@@ -71,18 +73,6 @@ public class Main extends Application {
 //        bookService.delete(book);
 //       // bookService.save(book);
 //        System.out.println(bookService.findAll());
-
-//        Book book1 = new BookBuilder()
-//                .setTitle("Ion")
-//                .setAuthor("Liviu Rebreanu")
-//                .setPublishedDate(LocalDate.of(1910, 10, 20))
-//                .build();
-//
-//        Book book2 = new BookBuilder()
-//                .setTitle("Moara cu noroc")
-//                .setAuthor("Ioan Slavici")
-//                .setPublishedDate(LocalDate.of(1950, 2, 10))
-//                .build();
 //
 //        bookService.save(book);
 //        bookService.save(bookMoaraCuNoroc);
@@ -113,6 +103,24 @@ public class Main extends Application {
 
     }
 
+//    @Override
+//    public void start(Stage primaryStage) throws Exception {
+//
+//        final Connection connection = new JDBConnectionWrapper(PRODUCTION).getConnection();
+//
+//        final RightsRolesRepository rightsRolesRepository = new RightsRolesRepositoryMySQL(connection);
+//        final UserRepository userRepository = new UserRepositoryMySQL(connection, rightsRolesRepository);
+//
+//        final AuthenticationService authenticationService = new AuthenticationServiceMySQL(userRepository, rightsRolesRepository);
+//
+//        final LoginView loginView = new LoginView(primaryStage);
+//
+//        final UserValidator userValidator = new UserValidator(userRepository);
+//
+//        new LoginController(loginView, authenticationService, userValidator);
+//
+//    }
+
     @Override
     public void start(Stage primaryStage) throws Exception {
 
@@ -123,11 +131,17 @@ public class Main extends Application {
 
         final AuthenticationService authenticationService = new AuthenticationServiceMySQL(userRepository, rightsRolesRepository);
 
+        // ADAUGĂ ASTA: Creează BookService
+        BookRepository bookRepository = new BookRepositoryCacheDecorator(
+                new BookRepositoryMySQL(connection),
+                new Cache<>()
+        );
+        final BookService bookService = new BookServiceImpl(bookRepository);
+
         final LoginView loginView = new LoginView(primaryStage);
 
-        final UserValidator userValidator = new UserValidator(userRepository);
 
-        new LoginController(loginView, authenticationService, userValidator);
 
+        new LoginController(loginView, authenticationService, bookService);
     }
 }

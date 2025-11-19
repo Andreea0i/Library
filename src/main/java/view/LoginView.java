@@ -18,7 +18,6 @@ import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
 public class LoginView {
-
     private TextField userTextField;
     private PasswordField passwordField;
     private Button signInButton;
@@ -26,12 +25,24 @@ public class LoginView {
     private Text actionTarget;
 
     public LoginView(Stage primaryStage) {
+        System.out.println("LoginView constructor called!");
         primaryStage.setTitle("Book Store");
+        //System.out.println("Încărcare CSS...");
 
         GridPane gridPane = new GridPane();
+        gridPane.setAlignment(Pos.CENTER);
+        gridPane.setHgap(10);
+        gridPane.setVgap(10);
+        gridPane.setPadding(new Insets(15, 15, 15, 15));
+
+        gridPane.getStyleClass().add("root");
+
         initializeGridPane(gridPane);
 
-        Scene scene = new Scene(gridPane, 720, 480);
+        Scene scene = new Scene(gridPane, 525, 790);
+        //pt login dragut
+        scene.getStylesheets().add("file:src/main/java/styles/login.css");
+
         primaryStage.setScene(scene);
 
         initializeSceneTitle(gridPane);
@@ -42,25 +53,29 @@ public class LoginView {
 
     private void initializeGridPane(GridPane gridPane) {
         gridPane.setAlignment(Pos.CENTER);
-        gridPane.setHgap(10);
-        gridPane.setVgap(10);
-        gridPane.setPadding(new Insets(25, 25, 25, 25));
+        gridPane.setHgap(8);
+        gridPane.setVgap(8);
+        gridPane.setPadding(new Insets(15, 15, 15, 15));
     }
 
     private void initializeSceneTitle(GridPane gridPane) {
         Text sceneTitle = new Text("Welcome to our Book Store");
-        sceneTitle.setFont(Font.font("Tahoma", FontWeight.NORMAL, 20));
+        sceneTitle.setFont(Font.font("Georgia", FontWeight.NORMAL, 30));
         gridPane.add(sceneTitle, 0, 0, 2, 1);
     }
 
     private void initializeFields(GridPane gridPane){
+        //USERNAME
         Label userName = new Label("User Name:");
+        userName.setFont(Font.font("Georgia", FontWeight.NORMAL, 14));
         gridPane.add(userName, 0, 1);
 
         userTextField = new TextField();
         gridPane.add(userTextField, 1, 1);
 
+        //PASSWORD
         Label password = new Label("Password");
+        password.setFont(Font.font("Georgia", FontWeight.NORMAL, 14));
         gridPane.add(password, 0, 2);
 
         passwordField = new PasswordField();
@@ -103,4 +118,13 @@ public class LoginView {
     public void addRegisterButtonListener(EventHandler<ActionEvent> signInButtonListener) {
         signInButton.setOnAction(signInButtonListener);
     }
+
+    public Button getLoginButton() {
+        return loginButton;
+    }
+
+    public Button getSignInButton() {
+        return signInButton;
+    }
+
 }

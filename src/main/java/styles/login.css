@@ -1,0 +1,63 @@
+/* Fundal principal cu imaginea ta */
+.root {
+    -fx-background-image: url('cover.jpg');
+    -fx-background-size: cover;
+    -fx-background-position: center;
+    -fx-background-repeat: no-repeat;
+}
+
+/* Formular semi-transparent */
+.grid-pane {
+    -fx-background-color: rgba(255, 255, 255, 0.90);
+    -fx-background-radius: 15;
+    -fx-border-color: rgba(52, 152, 219, 0.4);
+    -fx-border-radius: 15;
+    -fx-border-width: 2;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.3), 20, 0, 0, 5);
+    -fx-padding: 25;
+}
+
+/* Butoane */
+.button {
+    -fx-background-radius: 8;
+    -fx-font-weight: bold;
+    -fx-cursor: hand;
+    -fx-padding: 10 20;
+    -fx-font-size: 14px;
+    -fx-background-color: #4b748a;
+    -fx-text-fill: white;
+}
+
+.button:hover {
+    -fx-background-color: #2980b9;
+    -fx-scale-x: 1.05;
+    -fx-scale-y: 1.05;
+}
+
+/* Câmpuri text */
+.text-field, .password-field {
+    -fx-background-radius: 8;
+    -fx-background-color: #637377;
+    -fx-border-color: #bdc3c7;
+    -fx-border-radius: 8;
+    -fx-padding: 10;
+    -fx-font-size: 14px;
+}
+
+.text-field:focused, .password-field:focused {
+    -fx-border-color: #3498db;
+    -fx-effect: dropshadow(gaussian, rgba(52, 152, 219, 0.3), 10, 0, 0, 0);
+}
+
+/* Etichete */
+.label {
+    -fx-font-weight: bold;
+    -fx-text-fill: #2c3e50;
+    -fx-font-size: 14px;
+}
+
+/* Text */
+.text {
+    -fx-font-size: 15px;
+    -fx-fill: #040507;
+}
