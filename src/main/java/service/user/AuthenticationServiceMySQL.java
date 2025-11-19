@@ -1,15 +1,17 @@
 package service.user;
-
 import model.Role;
 import model.User;
 import model.builder.UserBuilder;
+import model.validator.Notification;
+import model.validator.UserValidator;
 import repository.security.RightsRolesRepository;
-import repository.user.AuthenticationService;
 import repository.user.UserRepository;
 
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.util.Collections;
+
+import static database.Constants.Roles.CUSTOMER;
 
 public class AuthenticationServiceMySQL implements AuthenticationService {
 
@@ -22,21 +24,35 @@ public class AuthenticationServiceMySQL implements AuthenticationService {
     }
 
     @Override
-    public boolean register(String username, String password) {
-        String encodedPassword = hashPassword(password);
+    public Notification<Boolean> register(String username, String password) {
 
-        Role customerRole = rightsRolesRepository.findRoleByTitle("CUSTOMER");
+        Role customerRole = rightsRolesRepository.findRoleByTitle(CUSTOMER);
 
         User user = new UserBuilder()
                 .setUsername(username)
-                .setPassword(encodedPassword)
+                .setPassword(password)
                 .setRoles(Collections.singletonList(customerRole))
                 .build();
-        return userRepository.save(user);
+
+        UserValidator userValidator = new UserValidator(user);
+
+        boolean userValid = userValidator.validate();
+        Notification<Boolean> userRegisterNotification = new Notification<>();
+
+        if (!userValid){
+            userValidator.getErrors().forEach(userRegisterNotification::addError);
+            userRegisterNotification.setResult(Boolean.FALSE);
+        } else {
+            user.setPassword(hashPassword(password));
+            userRegisterNotification.setResult(userRepository.save(user));
+        }
+
+        return userRegisterNotification;
     }
+
     @Override
-    public User login(String username, String password) {
-        return userRepository.findByUserNameAndPassword(username, hashPassword(password));
+    public Notification<User> login(String username, String password) {
+        return userRepository.findByUsernameAndPassword(username, hashPassword(password));
     }
 
     @Override
@@ -44,13 +60,11 @@ public class AuthenticationServiceMySQL implements AuthenticationService {
         return false;
     }
 
-//    @Override
-//    public boolean existsByUsername(String username) {
-//        return false;
-//    }
-
     private String hashPassword(String password) {
         try {
+            // Sercured Hash Algorithm - 256
+            // 1 byte = 8 biți
+            // 1 byte = 1 char
             MessageDigest digest = MessageDigest.getInstance("SHA-256");
             byte[] hash = digest.digest(password.getBytes(StandardCharsets.UTF_8));
             StringBuilder hexString = new StringBuilder();
@@ -60,10 +74,10 @@ public class AuthenticationServiceMySQL implements AuthenticationService {
                 if (hex.length() == 1) hexString.append('0');
                 hexString.append(hex);
             }
+
             return hexString.toString();
         } catch (Exception ex) {
             throw new RuntimeException(ex);
         }
     }
-
 }

@@ -2,7 +2,6 @@ plugins {
     id 'java'
     id 'application'
     id 'org.openjfx.javafxplugin' version '0.1.0'
-    id 'com.github.johnrengelman.shadow' version '8.1.1'
 }
 
 group = 'org.example'
@@ -17,40 +16,21 @@ dependencies {
     testImplementation 'org.junit.jupiter:junit-jupiter'
 
     implementation 'mysql:mysql-connector-java:8.0.33'
-    implementation 'org.openjfx:javafx-controls:21'
-    implementation 'org.openjfx:javafx-fxml:21'
+    // Șterge liniile astea - sunt duplicate cu javafxplugin
+    // implementation 'org.openjfx:javafx-controls:21'
+    // implementation 'org.openjfx:javafx-fxml:21'
     implementation files('libs/Library-1.0-SNAPSHOT-all.jar')
 }
 
 javafx {
-    version = '21.0.1'
+    version = '21'
     modules = ['javafx.controls', 'javafx.fxml']
 }
 
 application {
-    // Clasa principală
-    mainClass.set('launcher.Launcher')
-}
-
-run {
-    // Asigură runtime JavaFX
-    doFirst {
-        jvmArgs = [
-                '--module-path', classpath.asPath,
-                '--add-modules', 'javafx.controls,javafx.fxml'
-        ]
-    }
-}
-
-jar {
-    manifest {
-        attributes(
-                'Main-Class': 'launcher.Launcher'
-        )
-    }
+    mainClass = 'launcher.Launcher'
 }
 
 test {
     useJUnitPlatform()
 }
-mainClassName = 'Main'

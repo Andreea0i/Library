@@ -121,13 +121,13 @@ public class Main extends Application {
         final RightsRolesRepository rightsRolesRepository = new RightsRolesRepositoryMySQL(connection);
         final UserRepository userRepository = new UserRepositoryMySQL(connection, rightsRolesRepository);
 
-        final AuthenticationService authenticationService = new AuthenticationServiceMySQL(userRepository, rightsRolesRepository);
+        //final AuthenticationService authenticationService = new AuthenticationServiceMySQL(userRepository, rightsRolesRepository);
 
         final LoginView loginView = new LoginView(primaryStage);
 
         final UserValidator userValidator = new UserValidator(userRepository);
 
-        new LoginController(loginView, authenticationService, userValidator);
+        //new LoginController(loginView, authenticationService, userValidator);
 
     }
 }
