@@ -2,10 +2,17 @@ package controller;
 
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
+import javafx.stage.Stage;
 import model.User;
-import model.validator.UserValidator;
+import model.validator.Notification;
+//import model.validator.UserValidator;
 import repository.user.AuthenticationService;
+import service.book.BookService;
+import view.AdminView;
+import view.EmployeeView;
 import view.LoginView;
+import service.user.AuthenticationService;
+
 
 import java.util.List;
 
@@ -13,12 +20,16 @@ public class LoginController {
 
     private final LoginView loginView;
     private final AuthenticationService authenticationService;
-    private final UserValidator userValidator;
+    //private final UserValidator userValidator;
 
-    public LoginController(LoginView loginView, AuthenticationService authenticationService, UserValidator userValidator) {
+    private final BookService bookService;
+
+    public LoginController(LoginView loginView, AuthenticationService authenticationService, BookService bookService) {
         this.loginView = loginView;
         this.authenticationService = authenticationService;
-        this.userValidator = userValidator;
+        //this.userValidator = userValidator;
+
+        this.bookService = bookService;
 
         this.loginView.addLoginButtonListener(new LoginButtonListener());
         this.loginView.addRegisterButtonListener(new RegisterButtonListener());
@@ -31,12 +42,13 @@ public class LoginController {
             String username = loginView.getUsername();
             String password = loginView.getPassword();
 
-            User user = authenticationService.login(username, password);
+            Notification<User> loginNotification = authenticationService.login(username, password);
 
-            if (user == null) {
-                loginView.setActionTargetText("Invalid Username or password!");
+            if (loginNotification.hasErrors()) {
+                loginView.setActionTargetText(loginNotification.getFormattedErrors());
             } else {
                 loginView.setActionTargetText("Login successful! Welcome " + username);
+                openUserView(loginNotification.getResult());
             }
         }
     }
@@ -47,18 +59,42 @@ public class LoginController {
             String username = loginView.getUsername();
             String password = loginView.getPassword();
 
-            userValidator.validate(username, password);
-            final List<String> errors = userValidator.getErrors();
-
-            if (errors.isEmpty()) {
-                if (authenticationService.register(username, password)) {
-                    loginView.setActionTargetText("Registration successful!");
-                } else {
-                    loginView.setActionTargetText("Registration failed! User may be already taken!");
-                }
+            Notification<Boolean> registerNotification = authenticationService.register(username, password);
+            if (registerNotification.hasErrors()) {
+                loginView.setActionTargetText(registerNotification.getFormattedErrors());
             } else {
-                loginView.setActionTargetText(userValidator.getFormattedErrors());
+                loginView.setActionTargetText("Register successful!");
             }
         }
+    }
+
+    // ADAUGĂ METODELE ASTEA NOI:
+
+    private void openUserView(User user) {
+        Stage currentStage = (Stage) loginView.getLoginButton().getScene().getWindow();
+
+        // Verifică rolurile utilizatorului
+        boolean isAdmin = user.getRoles().stream()
+                .anyMatch(role -> "ADMIN".equals(role.getRole()));
+
+        if (isAdmin) {
+            openAdminView(currentStage, user);
+        } else {
+            openEmployeeView(currentStage, user);
+        }
+    }
+
+    private void openAdminView(Stage currentStage, User user) {
+        currentStage.close();
+        Stage adminStage = new Stage();
+        AdminView adminView = new AdminView(adminStage, user, bookService); // PASEAZĂ bookService
+        adminStage.show();
+    }
+
+    private void openEmployeeView(Stage currentStage, User user) {
+        currentStage.close();
+        Stage employeeStage = new Stage();
+        EmployeeView employeeView = new EmployeeView(employeeStage, user, bookService); // ȘI AICI
+        employeeStage.show();
     }
 }
