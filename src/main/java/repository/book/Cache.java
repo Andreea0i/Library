@@ -1,7 +1,5 @@
 package repository.book;
 
-//generic classes
-
 import java.util.List;
 
 public class Cache<T>{

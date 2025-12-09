@@ -1,4 +1,4 @@
-/* Fundal principal cu imaginea ta */
+/* Fundal principal cu imag */
 .root {
     -fx-background-image: url('cover.jpg');
     -fx-background-size: cover;
@@ -34,7 +34,7 @@
     -fx-scale-y: 1.05;
 }
 
-/* Câmpuri text */
+/* Campuri text */
 .text-field, .password-field {
     -fx-background-radius: 8;
     -fx-background-color: #637377;
@@ -56,7 +56,6 @@
     -fx-font-size: 14px;
 }
 
-/* Text */
 .text {
     -fx-font-size: 15px;
     -fx-fill: #040507;

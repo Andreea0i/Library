@@ -10,6 +10,7 @@ import repository.security.RightsRolesRepository;
 
 import java.sql.*;
 import java.util.List;
+import java.util.ArrayList;
 
 import static database.Constants.Tables.USER;
 
@@ -24,38 +25,37 @@ public class UserRepositoryMySQL implements UserRepository {
     }
 
     @Override
-    public List<User> findAll() {
-        return null;
-    }
-
-    @Override
     public Notification<User> findByUserNameAndPassword(String username, String password) {
-        Notification<User> findByUsernameAndPasswordNotification = new Notification<>();
+        Notification<User> notification = new Notification<>();
         try {
-            Statement statement = connection.createStatement();
-            String fetchUserSql =
-                    "Select * from `" + USER + "` where `username`=\"" + username + "\" and `password`=\"" + password + "\"";
-            ResultSet userResultSet = statement.executeQuery(fetchUserSql);
-            if(userResultSet.next()){
+            PreparedStatement statement = connection.prepareStatement(
+                    "SELECT * FROM `" + USER + "` WHERE `username`=? AND `password`=?");
+            statement.setString(1, username);
+            statement.setString(2, password);
 
-            User user = new UserBuilder()
-                    .setUsername(userResultSet.getString("username"))
-                    .setPassword(userResultSet.getString("password"))
-                    .setRoles(rightsRolesRepository.findRolesForUser(userResultSet.getLong("id")))
-                    .build();
+            ResultSet rs = statement.executeQuery();
 
-                findByUsernameAndPasswordNotification.setResult(user);
+            if(rs.next()) {
+                Long userId = rs.getLong("id");
+
+                User user = new UserBuilder()
+                        .setId(userId)
+                        .setUsername(rs.getString("username"))
+                        .setPassword(rs.getString("password"))
+                        .setRoles(rightsRolesRepository.findRolesForUser(userId))
+                        .build();
+
+                notification.setResult(user);
+                System.out.println("DEBUG: User logged in with ID: " + userId);
             } else {
-                findByUsernameAndPasswordNotification.addError("Invalid username or password!");
-                return findByUsernameAndPasswordNotification;
+                notification.addError("Invalid username or password!");
             }
-
         } catch (SQLException e) {
-            System.out.println(e.toString());
-            findByUsernameAndPasswordNotification.addError("Something is wrong with the Database!");
+            e.printStackTrace();
+            notification.addError("Database error!");
         }
-        return findByUsernameAndPasswordNotification;
-    }//metoda statement trebuie schimbata
+        return notification;
+    }
 
     @Override
     public boolean save(User user) {
@@ -102,5 +102,89 @@ public class UserRepositoryMySQL implements UserRepository {
             e.printStackTrace();
             return false;
         }
-    }//si asta trebuie modificat
+    }
+
+    @Override
+    public List<User> findAll() {
+        List<User> users = new ArrayList<>();
+        try {
+            Statement statement = connection.createStatement();
+            String sql = "SELECT * FROM " + USER;
+            ResultSet resultSet = statement.executeQuery(sql);
+
+            while (resultSet.next()) {
+                User user = new UserBuilder()
+                        .setId(resultSet.getLong("id"))
+                        .setUsername(resultSet.getString("username"))
+                        .setPassword(resultSet.getString("password"))
+                        .setRoles(rightsRolesRepository.findRolesForUser(resultSet.getLong("id")))
+                        .build();
+                users.add(user);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return users;
+    }
+
+    public boolean removeById(Long id) {
+        try {
+            PreparedStatement deleteUserRoleStatement = connection
+                    .prepareStatement("DELETE FROM user_role WHERE user_id = ?");
+            deleteUserRoleStatement.setLong(1, id);
+            deleteUserRoleStatement.executeUpdate();
+
+            PreparedStatement deleteUserStatement = connection
+                    .prepareStatement("DELETE FROM " + USER + " WHERE id = ?");
+            deleteUserStatement.setLong(1, id);
+            int rowsAffected = deleteUserStatement.executeUpdate();
+
+            return rowsAffected > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+    public User findById(Long id) {
+        try {
+            PreparedStatement statement = connection.prepareStatement(
+                    "SELECT * FROM " + USER + " WHERE id = ?");
+            statement.setLong(1, id);
+            ResultSet resultSet = statement.executeQuery();
+
+            if (resultSet.next()) {
+                return new UserBuilder()
+                        .setId(resultSet.getLong("id"))
+                        .setUsername(resultSet.getString("username"))
+                        .setPassword(resultSet.getString("password"))
+                        .setRoles(rightsRolesRepository.findRolesForUser(id))
+                        .build();
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+    public boolean updateUserRoles(Long userId, List<Role> newRoles) {
+        try {
+
+            PreparedStatement deleteStatement = connection
+                    .prepareStatement("DELETE FROM user_role WHERE user_id = ?");
+            deleteStatement.setLong(1, userId);
+            deleteStatement.executeUpdate();
+
+
+            for (Role role : newRoles) {
+                PreparedStatement insertStatement = connection
+                        .prepareStatement("INSERT INTO user_role (user_id, role_id) VALUES (?, ?)");
+                insertStatement.setLong(1, userId);
+                insertStatement.setLong(2, role.getId());
+                insertStatement.executeUpdate();
+            }
+            return true;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
 }

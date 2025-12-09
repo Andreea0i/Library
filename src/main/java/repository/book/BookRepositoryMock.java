@@ -6,10 +6,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-public class BookRepositoryMock implements BookRepository{
+public class BookRepositoryMock implements BookRepository {
     private List<Book> books;
 
-    public BookRepositoryMock(){
+    public BookRepositoryMock() {
         books = new ArrayList<>();
     }
 
@@ -20,13 +20,28 @@ public class BookRepositoryMock implements BookRepository{
 
     @Override
     public Optional<Book> findById(Long id) {
-        return books.parallelStream().filter(it -> it.getId().equals(id)).findFirst();
-        //return Optional.empty();
+        return books.stream().filter(it -> it.getId().equals(id)).findFirst();
     }
 
     @Override
     public boolean save(Book book) {
         return books.add(book);
+    }
+
+    @Override
+    public boolean update(Book book) {
+        return books.stream()
+                .filter(b -> b.getId().equals(book.getId()))
+                .findFirst()
+                .map(existingBook -> {
+                    existingBook.setAuthor(book.getAuthor());
+                    existingBook.setTitle(book.getTitle());
+                    existingBook.setPublishedDate(book.getPublishedDate());
+                    existingBook.setPrice(book.getPrice());
+                    existingBook.setQuantity(book.getQuantity());
+                    return true;
+                })
+                .orElse(false);
     }
 
     @Override

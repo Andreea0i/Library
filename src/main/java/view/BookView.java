@@ -11,8 +11,8 @@ import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.GridPane;
 import javafx.stage.Stage;
+import service.book.BookService;
 import view.model.BookDTO;
-
 import java.util.List;
 
 public class BookView {
@@ -26,22 +26,30 @@ public class BookView {
     private Label titleLabel;
     private Button saveButton;
     private Button deleteButton;
+    private DatePicker publishedDatePicker;
+    private TextField quantityField;
 
-    public BookView(Stage primaryStage, List<BookDTO> books) {
-        primaryStage.setTitle("Library");
+    private final BookService bookService; // ADAUGĂ ASTA
+
+    public BookView(Stage primaryStage, List<BookDTO> books, BookService bookService) {
+        this.bookService = bookService;
+        primaryStage.setTitle("📖 Book Library");
 
         GridPane gridPane = new GridPane();
         initializeGridPane(gridPane);
 
-        Scene scene = new Scene(gridPane, 720, 480);
-        primaryStage.setScene(scene);
-
-        // Folosim lista de BookDTO venită ca parametru
         bookObservableList = FXCollections.observableArrayList(books);
 
         initTableView(gridPane);
         initSaveOptions(gridPane);
 
+        Scene scene = new Scene(gridPane, 800, 600);
+
+        // pt EmployeeView, AdminView, BookView:
+        String cssPath = "file:src/main/java/styles/application.css";
+        scene.getStylesheets().add(cssPath);
+
+        primaryStage.setScene(scene);
         primaryStage.show();
     }
 
@@ -50,6 +58,7 @@ public class BookView {
         gridPane.setHgap(10);
         gridPane.setVgap(10);
         gridPane.setPadding(new Insets(25, 25, 25, 25));
+        gridPane.getStyleClass().add("content-pane"); // CLASA CSS
     }
 
     private void initTableView(GridPane gridPane) {
@@ -58,34 +67,61 @@ public class BookView {
 
         TableColumn<BookDTO, String> titleColumn = new TableColumn<>("Title");
         titleColumn.setCellValueFactory(new PropertyValueFactory<>("title"));
+        titleColumn.setPrefWidth(300);
 
         TableColumn<BookDTO, String> authorColumn = new TableColumn<>("Author");
         authorColumn.setCellValueFactory(new PropertyValueFactory<>("author"));
+        authorColumn.setPrefWidth(250);
 
         bookTableView.getColumns().addAll(titleColumn, authorColumn);
         bookTableView.setItems(bookObservableList);
 
-        gridPane.add(bookTableView, 0, 0, 7, 1); // extindem pe 7 coloane pentru input-uri și butoane
+        gridPane.add(bookTableView, 0, 0, 6, 1);
     }
 
     private void initSaveOptions(GridPane gridPane) {
-        titleLabel = new Label("Title");
-        gridPane.add(titleLabel, 0, 1);
+        // Section title
+        Label sectionTitle = new Label("📚 Manage Books");
+        sectionTitle.getStyleClass().add("section-title");
+        gridPane.add(sectionTitle, 0, 1, 6, 1);
+
+        // Title input
+        titleLabel = new Label("Title:");
+        titleLabel.getStyleClass().add("label");
+        gridPane.add(titleLabel, 0, 2);
 
         titleTextField = new TextField();
-        gridPane.add(titleTextField, 1, 1);
+        titleTextField.setPromptText("Enter book title");
+        gridPane.add(titleTextField, 1, 2);
 
-        authorLabel = new Label("Author");
-        gridPane.add(authorLabel, 2, 1);
+        // Author input
+        authorLabel = new Label("Author:");
+        authorLabel.getStyleClass().add("label");
+        gridPane.add(authorLabel, 2, 2);
 
         authorTextField = new TextField();
-        gridPane.add(authorTextField, 3, 1);
+        authorTextField.setPromptText("Enter author name");
+        gridPane.add(authorTextField, 3, 2);
 
-        saveButton = new Button("Save");
-        gridPane.add(saveButton, 4, 1);
+        quantityField = new TextField(); // INITIALIZEAZĂ
+        quantityField.setPromptText("Enter quantity");
+        quantityField.setText("1"); // Valoare default
+        gridPane.add(quantityField, 3, 3);
 
-        deleteButton = new Button("Delete");
-        gridPane.add(deleteButton, 5, 1);
+        // Buttons
+        saveButton = new Button("💾 Save Book");
+        gridPane.add(saveButton, 4, 2);
+
+        deleteButton = new Button("🗑️ Delete Selected");
+        gridPane.add(deleteButton, 5, 2);
+    }
+
+    public DatePicker getPublishedDatePicker() {
+        return publishedDatePicker;
+    }
+
+    public TextField getQuantityField() {
+        return quantityField;
     }
 
     // Listener pentru butonul Save
@@ -104,6 +140,11 @@ public class BookView {
         alert.setTitle(title);
         alert.setHeaderText(header);
         alert.setContentText(content);
+
+        // Stilizare alertă
+        DialogPane dialogPane = alert.getDialogPane();
+        dialogPane.getStyleClass().add("dialog-pane");
+
         alert.showAndWait();
     }
 
@@ -128,5 +169,13 @@ public class BookView {
 
     public TableView<BookDTO> getBookTableView() {
         return bookTableView;
+    }
+
+    public void clearInputFields() {
+        titleTextField.clear();
+        authorTextField.clear();
+        quantityField.clear();
+        quantityField.setText("1");
+        publishedDatePicker.setValue(null);
     }
 }

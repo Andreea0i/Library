@@ -3,10 +3,14 @@ package controller;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import mapper.BookMapper;
+import model.Book;
+import model.builder.BookBuilder;
 import service.book.BookService;
 import view.BookView;
 import view.model.BookDTO;
 import view.model.builder.BookDTOBuilder;
+
+import java.time.LocalDate;
 
 
 public class BookController {
@@ -28,6 +32,18 @@ public class BookController {
         public void handle(ActionEvent event) {
             String title = bookView.getTitle();
             String author = bookView.getAuthor();
+            LocalDate date = bookView.getPublishedDatePicker().getValue();
+            int quantity = Integer.parseInt(bookView.getQuantityField().getText());
+
+            Book book = new BookBuilder()
+                    .setTitle(title)
+                    .setAuthor(author)
+                    .setPublishedDate(date)
+                    .setQuantity(quantity)
+                    .build();
+
+            boolean result = bookService.save(book);
+
 
             if (title.isEmpty() || author.isEmpty()) {
                 bookView.addDisplayAlertMessage("Save Error", "Problem at Author or Title", "Can not have an empty Title or Author field");
@@ -64,6 +80,5 @@ public class BookController {
 
           }
         }
-
     }
 }

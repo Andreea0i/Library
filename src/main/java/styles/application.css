@@ -1,0 +1,100 @@
+/* GENERAL pentru toate ferestrele app */
+.root {
+    -fx-background-image: url('paper.jpeg');
+    -fx-background-size: cover;
+    -fx-background-position: center;
+    -fx-background-repeat: no-repeat;
+    -fx-font-family: "Georgia";
+}
+
+/* Container principal pt conținut */
+.content-pane {
+    -fx-background-color: rgba(255, 255, 255, 0.85);
+    -fx-background-radius: 15;
+    -fx-border-color: #8B4513;
+    -fx-border-radius: 15;
+    -fx-border-width: 2;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.3), 20, 0, 0, 5);
+    -fx-padding: 25;
+}
+
+/* Header text */
+.header-text {
+    -fx-font-size: 24px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #5D4037;
+}
+
+/* Welcome text */
+.welcome-text {
+    -fx-font-size: 16px;
+    -fx-text-fill: #7D5D3B;
+}
+
+/* Section container */
+.section-pane {
+    -fx-background-color: rgba(255, 255, 255, 0.7);
+    -fx-background-radius: 10;
+    -fx-border-color: #D7CCC8;
+    -fx-border-radius: 10;
+    -fx-border-width: 1;
+    -fx-padding: 15;
+}
+
+/* Section title */
+.section-title {
+    -fx-font-size: 18px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #5D4037;
+}
+
+/* Butoane dragute */
+.button {
+    -fx-background-radius: 8;
+    -fx-font-weight: bold;
+    -fx-cursor: hand;
+    -fx-padding: 10 20;
+    -fx-font-size: 11px;
+    -fx-background-color: #8B4513;
+    -fx-text-fill: white;
+}
+
+.button:hover {
+    -fx-background-color: #A0522D;
+    -fx-scale-x: 1.05;
+    -fx-scale-y: 1.05;
+}
+
+/* Campuri de text */
+.text-field, .password-field, .date-picker {
+    -fx-background-radius: 5;
+    -fx-background-color: white;
+    -fx-border-color: #8B4513;
+    -fx-border-radius: 5;
+    -fx-padding: 8;
+    -fx-font-size: 14px;
+}
+
+.text-field:focused, .password-field:focused, .date-picker:focused {
+    -fx-border-color: #5D4037;
+    -fx-effect: dropshadow(gaussian, rgba(93, 64, 55, 0.3), 5, 0, 0, 0);
+}
+
+/* Etichete */
+.label {
+    -fx-font-weight: bold;
+    -fx-text-fill: #5D4037;
+    -fx-font-size: 14px;
+}
+
+/* Tabel */
+.table-view {
+    -fx-background-color: rgba(255, 255, 255, 0.9);
+    -fx-border-color: #8B4513;
+    -fx-border-radius: 5;
+}
+
+/* Alert dialog */
+.dialog-pane {
+    -fx-font-family: "Georgia";
+}

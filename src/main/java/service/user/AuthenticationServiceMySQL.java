@@ -1,4 +1,6 @@
+// AuthenticationServiceMySQL.java - modifică register pentru a seta Employee ca default
 package service.user;
+
 import model.Role;
 import model.User;
 import model.builder.UserBuilder;
@@ -11,7 +13,7 @@ import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.util.Collections;
 
-import static database.Constants.Roles.CUSTOMER;
+import static database.Constants.Roles.EMPLOYEE; // Folosește EMPLOYEE în loc de CUSTOMER
 
 public class AuthenticationServiceMySQL implements AuthenticationService {
 
@@ -25,13 +27,43 @@ public class AuthenticationServiceMySQL implements AuthenticationService {
 
     @Override
     public Notification<Boolean> register(String username, String password) {
-
-        Role customerRole = rightsRolesRepository.findRoleByTitle(CUSTOMER);
+        // DEFAULT: toți userii noi sunt EMPLOYEE (nu mai e CUSTOMER)
+        Role defaultRole = rightsRolesRepository.findRoleByTitle(EMPLOYEE);
 
         User user = new UserBuilder()
                 .setUsername(username)
                 .setPassword(password)
-                .setRoles(Collections.singletonList(customerRole))
+                .setRoles(Collections.singletonList(defaultRole))
+                .build();
+
+        UserValidator userValidator = new UserValidator(user);
+
+        boolean userValid = userValidator.validate();
+        Notification<Boolean> userRegisterNotification = new Notification<>();
+
+        if (!userValid){
+            userValidator.getErrors().forEach(userRegisterNotification::addError);
+            userRegisterNotification.setResult(Boolean.FALSE);
+        } else {
+            user.setPassword(hashPassword(password));
+            userRegisterNotification.setResult(userRepository.save(user));
+        }
+
+        return userRegisterNotification;
+    }
+
+    // METODĂ NOUĂ pentru register cu rol specific
+    public Notification<Boolean> register(String username, String password, String roleName) {
+        Role role = rightsRolesRepository.findRoleByTitle(roleName);
+        if (role == null) {
+            // Fallback la EMPLOYEE dacă rolul nu există
+            role = rightsRolesRepository.findRoleByTitle(EMPLOYEE);
+        }
+
+        User user = new UserBuilder()
+                .setUsername(username)
+                .setPassword(password)
+                .setRoles(Collections.singletonList(role))
                 .build();
 
         UserValidator userValidator = new UserValidator(user);
@@ -52,7 +84,7 @@ public class AuthenticationServiceMySQL implements AuthenticationService {
 
     @Override
     public Notification<User> login(String username, String password) {
-        return userRepository.findByUsernameAndPassword(username, hashPassword(password));
+        return userRepository.findByUserNameAndPassword(username, hashPassword(password));
     }
 
     @Override
@@ -62,9 +94,6 @@ public class AuthenticationServiceMySQL implements AuthenticationService {
 
     private String hashPassword(String password) {
         try {
-            // Sercured Hash Algorithm - 256
-            // 1 byte = 8 biți
-            // 1 byte = 1 char
             MessageDigest digest = MessageDigest.getInstance("SHA-256");
             byte[] hash = digest.digest(password.getBytes(StandardCharsets.UTF_8));
             StringBuilder hexString = new StringBuilder();

@@ -17,7 +17,6 @@ public class BookServiceImpl implements BookService {
 
     @Override
     public List<Book> findAll() {
-//        return List.of();
         return bookRepository.findAll();
     }
 
@@ -44,4 +43,5 @@ public class BookServiceImpl implements BookService {
 
         return (int) ChronoUnit.YEARS.between(book.getPublishedDate(), now) ;
     }
+
 }

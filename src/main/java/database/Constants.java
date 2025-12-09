@@ -11,7 +11,6 @@ import static database.Constants.Rights.RIGHTS;
 import static database.Constants.Roles.ROLES;
 import static database.Constants.Roles.ADMINISTRATOR;
 import static database.Constants.Roles.EMPLOYEE;
-import static database.Constants.Roles.CUSTOMER;
 
 
 public class Constants {
@@ -23,7 +22,6 @@ public class Constants {
         }
         rolesRights.get(ADMINISTRATOR).addAll(Arrays.asList(RIGHTS));
         rolesRights.get(EMPLOYEE).addAll(Arrays.asList(CREATE_BOOK, DELETE_BOOK, UPDATE_BOOK, SELL_BOOK));
-        rolesRights.get(CUSTOMER).addAll(Arrays.asList(SELL_BOOK, BUY_BOOK, RETURN_BOOK));
         return rolesRights;
     }
 
@@ -47,9 +45,7 @@ public class Constants {
     public static class Roles {
         public static final String ADMINISTRATOR = "Administrator";
         public static final String EMPLOYEE = "Employee";
-        public static final String CUSTOMER = "Customer";
-
-        public static final String[] ROLES = new String[]{ADMINISTRATOR, EMPLOYEE, CUSTOMER};
+        public static final String[] ROLES = new String[]{ADMINISTRATOR, EMPLOYEE};
     }
 
     public static class Rights {
@@ -65,7 +61,8 @@ public class Constants {
         public static final String BUY_BOOK = "buy_book";
         public static final String RETURN_BOOK = "return_book";
 
-        public static final String[] RIGHTS = new String[]{CREATE_USER, DELETE_USER, UPDATE_USER, CREATE_BOOK, DELETE_BOOK, UPDATE_BOOK, SELL_BOOK, BUY_BOOK, RETURN_BOOK};
+        public static final String[] RIGHTS = new String[]{CREATE_USER, DELETE_USER, UPDATE_USER,
+                CREATE_BOOK, DELETE_BOOK, UPDATE_BOOK,
+                SELL_BOOK, BUY_BOOK, RETURN_BOOK};
     }
 }
-

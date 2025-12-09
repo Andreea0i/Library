@@ -27,7 +27,6 @@ public class LoginView {
     public LoginView(Stage primaryStage) {
         System.out.println("LoginView constructor called!");
         primaryStage.setTitle("Book Store");
-        //System.out.println("Încărcare CSS...");
 
         GridPane gridPane = new GridPane();
         gridPane.setAlignment(Pos.CENTER);
@@ -98,7 +97,6 @@ public class LoginView {
         gridPane.add(actionTarget, 1, 6);
     }
 
-    // Metodele publice trebuie să fie în afara metodelor private
     public String getUsername() {
         return userTextField.getText();
     }

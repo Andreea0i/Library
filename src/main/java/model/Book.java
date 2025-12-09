@@ -7,14 +7,8 @@ public class Book {
     private String title;
     private String author;
     private LocalDate publishedDate;
-
-    //public Book(String toDelete, String author) {
-    //}
-
-//    public Book(String testTitle, String testAuthor) {
-//        this.title = testTitle;
-//        this.author = testAuthor;
-//    }
+    private Integer quantity;
+    private Double price;
 
     public Long getId() {
         return id;
@@ -48,8 +42,25 @@ public class Book {
         this.publishedDate = publishedDate;
     }
 
+    public Integer getQuantity() {
+        return quantity;
+    }
+
+    public void setQuantity(Integer quantity) {
+        this.quantity = quantity;
+    }
+    public Double getPrice() {
+        return price;
+    }
+
+    public void setPrice(Double price) {
+        this.price = price;
+    }
+
+
     @Override
     public String toString() {
-        return "Book: Id: " + id + ", Title: " + title + ", Author: " + author + ", Published Date: " + publishedDate;
+        return "Book: Id: " + id + ", Title: " + title + ", Author: " + author +
+                ", Published Date: " + publishedDate + ", Quantity: " + quantity;
     }
 }

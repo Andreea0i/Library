@@ -12,6 +12,7 @@ public class BookRepositoryCacheDecorator extends BookRepositoryDecorator {
         super(bookRepository);
         this.cache = cache;
     }
+
     @Override
     public List<Book> findAll() {
         if (cache.hasResult()) {
@@ -40,6 +41,12 @@ public class BookRepositoryCacheDecorator extends BookRepositoryDecorator {
     }
 
     @Override
+    public boolean update(Book book) {
+        cache.invalidateCache();
+        return decoratedBookRepository.update(book);
+    }
+
+    @Override
     public boolean delete(Book book) {
         cache.invalidateCache();
         return decoratedBookRepository.delete(book);
@@ -49,6 +56,5 @@ public class BookRepositoryCacheDecorator extends BookRepositoryDecorator {
     public void removeAll() {
         cache.invalidateCache();
         decoratedBookRepository.removeAll();
-
     }
 }

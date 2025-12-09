@@ -1,38 +1,55 @@
+
 package controller;
 
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
+import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 import model.User;
 import model.validator.Notification;
-//import model.validator.UserValidator;
-import repository.user.AuthenticationService;
 import service.book.BookService;
-import view.AdminView;
+import service.user.UserService;
+import view.AdminViewEnhanced;
+import view.BookView;
 import view.EmployeeView;
 import view.LoginView;
 import service.user.AuthenticationService;
+import view.model.sale.SaleService;
+import launcher.ComponentFactory;
 
-
-import java.util.List;
 
 public class LoginController {
 
     private final LoginView loginView;
     private final AuthenticationService authenticationService;
-    //private final UserValidator userValidator;
-
     private final BookService bookService;
+    private final SaleService saleService;
 
-    public LoginController(LoginView loginView, AuthenticationService authenticationService, BookService bookService) {
+    public LoginController(LoginView loginView, AuthenticationService authenticationService,
+                           BookService bookService, SaleService saleService) {
         this.loginView = loginView;
         this.authenticationService = authenticationService;
-        //this.userValidator = userValidator;
-
         this.bookService = bookService;
+        this.saleService = saleService;
 
         this.loginView.addLoginButtonListener(new LoginButtonListener());
         this.loginView.addRegisterButtonListener(new RegisterButtonListener());
+
+        if (loginView.getLoginButton() == null) {
+            System.err.println("ERROR: loginButton is null!");
+        } else {
+            System.out.println("Adding listener to login button...");
+            this.loginView.addLoginButtonListener(new LoginButtonListener());
+        }
+
+        if (loginView.getSignInButton() == null) {
+            System.err.println("ERROR: signInButton is null!");
+        } else {
+            System.out.println("Adding listener to sign in button...");
+            this.loginView.addRegisterButtonListener(new RegisterButtonListener());
+        }
+
+        System.out.println("LoginController setup complete");
     }
 
     private class LoginButtonListener implements EventHandler<ActionEvent> {
@@ -48,6 +65,7 @@ public class LoginController {
                 loginView.setActionTargetText(loginNotification.getFormattedErrors());
             } else {
                 loginView.setActionTargetText("Login successful! Welcome " + username);
+
                 openUserView(loginNotification.getResult());
             }
         }
@@ -66,16 +84,14 @@ public class LoginController {
                 loginView.setActionTargetText("Register successful!");
             }
         }
-    }
 
-    // ADAUGĂ METODELE ASTEA NOI:
+    }
 
     private void openUserView(User user) {
         Stage currentStage = (Stage) loginView.getLoginButton().getScene().getWindow();
 
-        // Verifică rolurile utilizatorului
         boolean isAdmin = user.getRoles().stream()
-                .anyMatch(role -> "ADMIN".equals(role.getRole()));
+                .anyMatch(role -> "Administrator".equals(role.getRole()) || "ADMIN".equals(role.getRole()));
 
         if (isAdmin) {
             openAdminView(currentStage, user);
@@ -87,14 +103,18 @@ public class LoginController {
     private void openAdminView(Stage currentStage, User user) {
         currentStage.close();
         Stage adminStage = new Stage();
-        AdminView adminView = new AdminView(adminStage, user, bookService); // PASEAZĂ bookService
+
+        UserService userService = ComponentFactory.getInstance(false, adminStage).getUserService();
+
+        AdminViewEnhanced adminView = new AdminViewEnhanced(adminStage, user, bookService, userService);
+        AdminController adminController = new AdminController(adminView, userService, bookService, user);
         adminStage.show();
     }
 
     private void openEmployeeView(Stage currentStage, User user) {
         currentStage.close();
         Stage employeeStage = new Stage();
-        EmployeeView employeeView = new EmployeeView(employeeStage, user, bookService); // ȘI AICI
+        EmployeeView employeeView = new EmployeeView(employeeStage, user, bookService, saleService);
         employeeStage.show();
     }
 }

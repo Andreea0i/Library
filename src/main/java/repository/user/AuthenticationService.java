@@ -9,5 +9,4 @@ public interface AuthenticationService {
     User login(String username, String password);
 
     boolean logout(User user);
-   // boolean existsByUsername(String username);
 }
